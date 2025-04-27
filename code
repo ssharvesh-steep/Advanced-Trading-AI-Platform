@@ -1,0 +1,78 @@
+using System;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.FullAccess)]
+    public class LSTMScalpingBot : Robot
+    {
+        [Parameter("BB Period", DefaultValue = 20)]
+        public int BbPeriod { get; set; }
+
+        [Parameter("BB Deviation", DefaultValue = 2.0)]
+        public double BbDeviation { get; set; }
+
+        [Parameter("Risk % Per Trade", DefaultValue = 1.0)]
+        public double RiskPercent { get; set; }
+
+        [Parameter("SL Multiplier", DefaultValue = 1.5)]
+        public double SlMultiplier { get; set; }
+
+        [Parameter("TP Multiplier", DefaultValue = 2.5)]
+        public double TpMultiplier { get; set; }
+
+        private BollingerBands _bb;
+
+        protected override void OnStart()
+        {
+            _bb = Indicators.BollingerBands(Bars.ClosePrices, BbPeriod, BbDeviation, MovingAverageType.Simple);
+        }
+
+        protected override void OnBar()
+        {
+            if (Positions.Find("LSTMScalpingBot") != null) return; // Ensure one trade at a time
+
+            double predictedPrice = PredictNextPrice(); // AI-driven LSTM price prediction
+
+            if (predictedPrice > Bars.ClosePrices.Last(0) && Bars.ClosePrices.Last(0) <= _bb.Bottom.Last(0))
+            {
+                OpenTrade(TradeType.Buy);
+            }
+            else if (predictedPrice < Bars.ClosePrices.Last(0) && Bars.ClosePrices.Last(0) >= _bb.Top.Last(0))
+            {
+                OpenTrade(TradeType.Sell);
+            }
+        }
+
+        private void OpenTrade(TradeType tradeType)
+        {
+            double atrValue = Indicators.AverageTrueRange(14, MovingAverageType.Exponential).Result.Last(0);
+
+            double stopLossPips = Math.Max(atrValue * SlMultiplier, Symbol.PipSize * 10);
+            double takeProfitPips = Math.Max(atrValue * TpMultiplier, Symbol.PipSize * 15);
+
+            double riskAmount = Account.Balance * (RiskPercent / 100);
+            double volume = Symbol.QuantityToVolumeInUnits(riskAmount / stopLossPips);
+            volume = Math.Max(volume, Symbol.VolumeMin);
+
+            double stopLoss = tradeType == TradeType.Buy
+                ? Symbol.Ask - stopLossPips * Symbol.PipSize
+                : Symbol.Bid + stopLossPips * Symbol.PipSize;
+
+            double takeProfit = tradeType == TradeType.Buy
+                ? Symbol.Ask + takeProfitPips * Symbol.PipSize
+                : Symbol.Bid - takeProfitPips * Symbol.PipSize;
+
+            ExecuteMarketOrder(tradeType, SymbolName, volume, "LSTMScalpingBot", stopLoss, takeProfit);
+        }
+
+        private double PredictNextPrice()
+        {
+            // Placeholder for LSTM Model Prediction
+            // In real use, integrate with a trained LSTM model through an external Python script
+            return Bars.ClosePrices.Last(0) + (Symbol.PipSize * 5); // Mock prediction
+        }
+    }
+} 
