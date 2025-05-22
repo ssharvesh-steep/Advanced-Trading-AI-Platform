@@ -1,0 +1,110 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Trading AI</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background: transparent;
+            color: #2d3a4b;
+        }
+        .spline-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .main-panels {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .panel {
+            background: rgba(255,255,255,0.88);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            padding: 36px 32px 32px 32px;
+            min-width: 320px;
+            max-width: 400px;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .panel h2 {
+            margin-top: 0;
+            color: #4a90e2;
+        }
+        .panel p {
+            color: #6b7a8f;
+        }
+        .panel a {
+            display: inline-block;
+            margin-top: 18px;
+            background: #4a90e2;
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .panel a:hover {
+            background: #357ab8;
+        }
+        header, footer, .container, .hero {
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: #4a90e2;
+            text-decoration: none;
+            margin-left: 24px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: #357ab8;
+        }
+        @media (max-width: 900px) {
+            .main-panels { flex-direction: column; gap: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@0.9.518/build/spline-viewer.js"></script>
+    <spline-viewer class="spline-bg" url="https://prod.spline.design/k0xIY2H-2V4Q9Hh9/scene.splinecode" style="pointer-events:none;"></spline-viewer>
+    <div class="content">
+        <header>
+            <div class="container">
+                <nav>
+                    <div style="font-size:1.5em;font-weight:700;"></div>
+                    <div>
+                        <a href="/dashboard"></a>
+                        <a href="/monitor"></a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+        <section class="hero"></section>
+        <section class="container"></section>
+        <footer></footer>
+    </div>
+
+ </body></html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoTradeAI Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #181c24;
+            --card-bg: #23283a;
+            --accent: #00c6fb;
+            --accent2: #005bea;
+            --text: #f4f6fa;
+            --text-muted: #a0aec0;
+            --danger: #ff4c60;
+            --success: #00e396;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+        }
+        header {
+            background: var(--card-bg);
+            color: var(--text);
+            padding: 18px 0 10px 0;
+            margin-bottom: 18px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px 20px;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 24px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: var(--accent);
+        }
+        h1 {
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 24px;
+        }
+        .kpis {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .kpi {
+            flex: 1 1 180px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px 18px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .kpi h2 {
+            margin: 0 0 8px 0;
+            font-size: 2.1em;
+            color: var(--accent);
+        }
+        .kpi p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+        .charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }
+        .chart-card h3 {
+            margin-top: 0;
+            color: var(--accent2);
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .trade-table-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text);
+        }
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+        }
+        th {
+            background: var(--accent2);
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background: #23283a;
+        }
+        tr:nth-child(odd) {
+            background: #1c202a;
+        }
+        @media (max-width: 1000px) {
+            .charts { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .container { padding: 8px; }
+            .kpis { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container" style="padding-bottom:0;">
+            <nav>
+                <div style="font-size:1.2em;font-weight:700;">AutoTradeAI</div>
+                <div>
+                    <button id="tradingButton" style="background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 24px;">Start Trading</button>
+                    <a href="/">Home</a>
+                    <a href="/monitor">Live Monitor</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <h1>Trading Dashboard</h1>
+        <div class="kpis">
+            <div class="kpi"><h2 id="kpi-pl">$0.00</h2><p>Total P/L</p></div>
+            <div class="kpi"><h2 id="kpi-win">0%</h2><p>Win Rate</p></div>
+            <div class="kpi"><h2 id="kpi-trades">0</h2><p>Number of Trades</p></div>
+            <div class="kpi"><h2 id="kpi-sharpe">0.00</h2><p>Sharpe Ratio</p></div>
+            <div class="kpi"><h2 id="kpi-open">0</h2><p>Open Positions</p></div>
+        </div>
+        <div class="charts">
+            <div>
+                <div class="chart-card">
+                    <h3>Equity Curve</h3>
+                    <canvas id="equityChart" height="80"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Drawdown</h3>
+                    <canvas id="drawdownChart" height="60"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="chart-card">
+                    <h3>Monthly P&L</h3>
+                    <canvas id="monthlyChart" height="60"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Trade Distribution</h3>
+                    <canvas id="pieChart" height="60"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="trade-table-card">
+            <h3>Trade History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Side</th>
+                        <th>Price</th>
+                        <th>P/L</th>
+                    </tr>
+                </thead>
+                <tbody id="tradesTable"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // Demo: fetch from backend
+        const API = 'http://127.0.0.1:5000';
+        let isTrading = false;
+        const tradingButton = document.getElementById('tradingButton');
+
+        async function toggleTrading() {
+            if (!isTrading) {
+                const res = await fetch(`${API}/start_strategy`, { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'started') {
+                    isTrading = true;
+                    tradingButton.textContent = 'Stop Trading';
+                    tradingButton.style.background = 'var(--danger)';
+                }
+            } else {
+                const res = await fetch(`${API}/stop_strategy`, { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'stopped') {
+                    isTrading = false;
+                    tradingButton.textContent = 'Start Trading';
+                    tradingButton.style.background = 'var(--accent)';
+                }
+            }
+        }
+
+        tradingButton.addEventListener('click', toggleTrading);
+
+        async function fetchStatus() {
+            const res = await fetch(`${API}/status`);
+            const data = await res.json();
+            // KPIs
+            document.getElementById('kpi-pl').textContent = `$${data.current_pl.toFixed(2)}`;
+            document.getElementById('kpi-trades').textContent = data.trades.length;
+            // Win rate
+            const wins = data.trades.filter(t => t.pl && t.pl > 0).length;
+            const total = data.trades.filter(t => t.pl !== null).length;
+            document.getElementById('kpi-win').textContent = total ? `${Math.round(100 * wins / total)}%` : '0%';
+            // Sharpe ratio (simple)
+            const returns = data.trades.filter(t => t.pl !== null).map(t => t.pl);
+            const mean = returns.length ? returns.reduce((a,b)=>a+b,0)/returns.length : 0;
+            const std = returns.length > 1 ? Math.sqrt(returns.map(x => Math.pow(x-mean,2)).reduce((a,b)=>a+b,0)/(returns.length-1)) : 0.0001;
+            document.getElementById('kpi-sharpe').textContent = std ? (mean/std).toFixed(2) : '0.00';
+            // Open positions
+            document.getElementById('kpi-open').textContent = data.trades.filter(t => t.pl === null).length;
+            // Table
+            const tradesTable = document.getElementById('tradesTable');
+            tradesTable.innerHTML = '';
+            (data.trades || []).slice(-20).reverse().forEach(trade => {
+                tradesTable.innerHTML += `<tr><td>${trade.time}</td><td>${trade.side}</td><td>${trade.price}</td><td>${trade.pl !== null ? trade.pl : '-'}</td></tr>`;
+            });
+            // Charts
+            updateCharts(data);
+        }
+        // Chart.js
+        let equityChart, drawdownChart, monthlyChart, pieChart;
+        function updateCharts(data) {
+            // Equity curve
+            const equity = [];
+            let running = 0;
+            (data.trades || []).forEach(t => {
+                if (t.pl !== null) running += t.pl;
+                equity.push(running);
+            });
+            if (!equityChart) {
+                equityChart = new Chart(document.getElementById('equityChart').getContext('2d'), {
+                    type: 'line',
+                    data: { labels: equity.map((_,i)=>i+1), datasets: [{ label: 'Equity', data: equity, borderColor: '#00c6fb', backgroundColor: 'rgba(0,198,251,0.08)', fill: true, tension: 0.3 }] },
+                    options: { plugins: { legend: { display: false } }, scales: { x: { display: false } } }
+                });
+            } else {
+                equityChart.data.labels = equity.map((_,i)=>i+1);
+                equityChart.data.datasets[0].data = equity;
+                equityChart.update();
+            }
+            // Drawdown
+            let peak = 0, dd = [];
+            equity.forEach(v => { peak = Math.max(peak, v); dd.push(peak-v); });
+            if (!drawdownChart) {
+                drawdownChart = new Chart(document.getElementById('drawdownChart').getContext('2d'), {
+                    type: 'line',
+                    data: { labels: dd.map((_,i)=>i+1), datasets: [{ label: 'Drawdown', data: dd, borderColor: '#ff4c60', backgroundColor: 'rgba(255,76,96,0.08)', fill: true, tension: 0.3 }] },
+                    options: { plugins: { legend: { display: false } }, scales: { x: { display: false } } }
+                });
+            } else {
+                drawdownChart.data.labels = dd.map((_,i)=>i+1);
+                drawdownChart.data.datasets[0].data = dd;
+                drawdownChart.update();
+            }
+            // Monthly P&L (demo: group by 5 trades)
+            let monthly = [];
+            for (let i=0; i<equity.length; i+=5) {
+                monthly.push(equity[Math.min(i+4, equity.length-1)] - (i>0 ? equity[i-1] : 0));
+            }
+            if (!monthlyChart) {
+                monthlyChart = new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: monthly.map((_,i)=>'M'+(i+1)), datasets: [{ label: 'Monthly P&L', data: monthly, backgroundColor: '#00e396' }] },
+                    options: { plugins: { legend: { display: false } } }
+                });
+            } else {
+                monthlyChart.data.labels = monthly.map((_,i)=>'M'+(i+1));
+                monthlyChart.data.datasets[0].data = monthly;
+                monthlyChart.update();
+            }
+            // Trade Distribution
+            const buys = (data.trades || []).filter(t => t.side==='Buy').length;
+            const sells = (data.trades || []).filter(t => t.side==='Sell').length;
+            if (!pieChart) {
+                pieChart = new Chart(document.getElementById('pieChart').getContext('2d'), {
+                    type: 'pie',
+                    data: { labels: ['Buy', 'Sell'], datasets: [{ data: [buys, sells], backgroundColor: ['#00c6fb', '#ff4c60'] }] },
+                    options: { plugins: { legend: { display: true, labels: { color: '#f4f6fa' } } } }
+                });
+            } else {
+                pieChart.data.datasets[0].data = [buys, sells];
+                pieChart.update();
+            }
+        }
+        setInterval(fetchStatus, 2000);
+        fetchStatus();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoTradeAI Live Monitor</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #181c24;
+            --card-bg: #23283a;
+            --accent: #00c6fb;
+            --accent2: #005bea;
+            --text: #f4f6fa;
+            --text-muted: #a0aec0;
+            --danger: #ff4c60;
+            --success: #00e396;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+        }
+        header {
+            background: var(--card-bg);
+            color: var(--text);
+            padding: 18px 0 10px 0;
+            margin-bottom: 18px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px 40px 20px;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 24px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: var(--accent);
+        }
+        h1 {
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 24px;
+        }
+        .cards {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .card {
+            flex: 1 1 220px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px 18px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .card h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.3em;
+            color: var(--accent);
+        }
+        .card p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+        .main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+        .chart-card, .log-card, .alerts-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin-bottom: 24px;
+        }
+        .chart-card h3, .log-card h3, .alerts-card h3 {
+            margin-top: 0;
+            color: var(--accent2);
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text);
+        }
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+        }
+        th {
+            background: var(--accent2);
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background: #23283a;
+        }
+        tr:nth-child(odd) {
+            background: #1c202a;
+        }
+        .alerts-list {
+            color: var(--danger);
+            font-size: 1em;
+            margin: 0;
+            padding-left: 18px;
+        }
+        @media (max-width: 900px) {
+            .main { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .container { padding: 8px; }
+            .cards { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container" style="padding-bottom:0;">
+            <nav>
+                <div style="font-size:1.2em;font-weight:700;">AutoTradeAI</div>
+                <div>
+                    <a href="/">Home</a>
+                    <a href="/dashboard">Dashboard</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <h1>Live Monitoring</h1>
+        <div class="cards">
+            <div class="card">
+                <h2 id="openPosition">None</h2>
+                <p>Open Position</p>
+            </div>
+            <div class="card">
+                <h2 id="latestPrice">-</h2>
+                <p>Latest Price</p>
+            </div>
+        </div>
+        <div class="main">
+            <div>
+                <div class="chart-card">
+                    <h3>Live Price Chart (with BB & RSI)</h3>
+                    <canvas id="priceChart" height="80"></canvas>
+                </div>
+                <div class="log-card">
+                    <h3>Trade Log</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Side</th>
+                                <th>Price</th>
+                                <th>P/L</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="alerts-card">
+                    <h3>Alerts & Notifications</h3>
+                    <ul class="alerts-list" id="alertsList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const API = 'http://127.0.0.1:5000';
+        const positionSpan = document.getElementById('openPosition');
+        const priceSpan = document.getElementById('latestPrice');
+        const tradesTable = document.getElementById('tradesTable');
+        const alertsList = document.getElementById('alertsList');
+        let priceData = [];
+        let timeLabels = [];
+        let rsiData = [];
+        let bbUpper = [];
+        let bbLower = [];
+        let lastAlert = '';
+        const priceChart = new Chart(document.getElementById('priceChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [
+                    { label: 'Price', data: priceData, borderColor: '#00c6fb', backgroundColor: 'rgba(0,198,251,0.08)', fill: true, tension: 0.3 },
+                    { label: 'BB Upper', data: bbUpper, borderColor: '#00e396', borderDash: [5,5], fill: false, tension: 0.3 },
+                    { label: 'BB Lower', data: bbLower, borderColor: '#ff4c60', borderDash: [5,5], fill: false, tension: 0.3 },
+                    { label: 'RSI', data: rsiData, borderColor: '#f4f6fa', fill: false, tension: 0.3, yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: '#f4f6fa' } } },
+                scales: {
+                    x: { display: false },
+                    y: { beginAtZero: false, ticks: { color: '#f4f6fa' } },
+                    y1: { position: 'right', beginAtZero: true, min: 0, max: 100, grid: { drawOnChartArea: false }, ticks: { color: '#f4f6fa' } }
+                }
+            }
+        });
+        function updateChart(price, timestamp, upper, lower, rsi) {
+            if (priceData.length > 50) {
+                priceData.shift();
+                timeLabels.shift();
+                rsiData.shift();
+                bbUpper.shift();
+                bbLower.shift();
+            }
+            priceData.push(price);
+            timeLabels.push(timestamp);
+            rsiData.push(rsi);
+            bbUpper.push(upper);
+            bbLower.push(lower);
+            priceChart.update();
+        }
+        async function fetchLive() {
+            const res = await fetch(`${API}/live`);
+            const data = await res.json();
+            const now = new Date().toLocaleTimeString();
+            priceSpan.textContent = data.latest_price;
+            positionSpan.textContent = data.open_position === 1 ? 'Long' : 'None';
+            tradesTable.innerHTML = '';
+            (data.trades || []).forEach(trade => {
+                tradesTable.innerHTML += `<tr><td>${trade.time}</td><td>${trade.side}</td><td>${trade.price}</td><td>${trade.pl !== null ? trade.pl : '-'}</td></tr>`;
+            });
+            // Alerts: show if a new trade was made
+            if (data.trades && data.trades.length > 0) {
+                const lastTrade = data.trades[data.trades.length-1];
+                if (lastTrade.time !== lastAlert) {
+                    const msg = `${lastTrade.side} at ${lastTrade.price} (${lastTrade.time})`;
+                    const li = document.createElement('li');
+                    li.textContent = msg;
+                    alertsList.prepend(li);
+                    lastAlert = lastTrade.time;
+                }
+            }
+            // For overlays, simulate BB/RSI for now (real values would require backend support)
+            updateChart(data.latest_price, now, data.latest_price*1.01, data.latest_price*0.99, 50 + 30*Math.sin(Date.now()/100000));
+        }
+        setInterval(fetchLive, 2000);
+        fetchLive();
+    </script>
+</body>
+</html> 
